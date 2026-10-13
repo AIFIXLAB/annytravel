@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7a8c4">
+<title>Osaka 21-27 Dec 2026 · Tum + Ann</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1/dist/umd/supabase.min.js"></script>
+<style>
+:root{--pk:#f7a8c4;--dp:#e8629a;--bg:#fff0f5;--cr:#fffaf3;--ink:#5a2a44;--mt:#cdebd8;--lv:#e3d4fb;--ln:#f6d3e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Mali','Zen Maru Gothic',sans-serif;color:var(--ink);background:var(--bg);
+ background-image:radial-gradient(var(--ln) 1.5px,transparent 1.6px);background-size:18px 18px;
+ padding:env(safe-area-inset-top,0) 0 calc(74px + env(safe-area-inset-bottom,0))}
+.app{max-width:480px;margin:0 auto;padding:14px 14px 20px;position:relative}
+h1,h2,h3{margin:0;font-family:'Zen Maru Gothic','Mali',sans-serif}
+.hero{background:linear-gradient(160deg,#ffd3e3,#f7a8c4);border-radius:30px;padding:22px 20px 20px;position:relative;overflow:hidden;border:3px solid #fff;box-shadow:0 6px 0 #f2a0be}
+.hero h1{font-size:26px;line-height:1.25;color:#fff;text-shadow:0 2px 0 #e8629a}
+.hero p{margin:6px 0 0;font-weight:600}
+.vt{position:absolute;right:14px;top:14px;writing-mode:vertical-rl;font-family:'Zen Maru Gothic';font-weight:700;font-size:17px;letter-spacing:.25em;color:#fff;opacity:.95}
+.cd{display:inline-flex;align-items:baseline;gap:6px;margin-top:12px;background:#fff;border-radius:22px;padding:6px 16px;font-weight:700}
+.cd b{font-size:30px;color:var(--dp);font-family:'Zen Maru Gothic'}
+.sak{position:absolute;pointer-events:none}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.tile{background:var(--cr);border:2.5px solid var(--pk);border-radius:22px;padding:12px 4px 10px;text-align:center;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 0 var(--pk);font-family:inherit;color:var(--ink)}
+.tile:active{transform:translateY(3px);box-shadow:0 1px 0 var(--pk)}
+.tile .i{font-size:28px;display:block;margin-bottom:2px}
+.card{background:var(--cr);border:2.5px solid var(--pk);border-radius:26px;padding:14px 16px;margin:12px 0}
+.card h2{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pill{display:inline-block;background:var(--pk);color:#fff;border-radius:14px;padding:2px 10px;font-size:13px;font-weight:700}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}
+.tabs button{flex:0 0 auto;border:2.5px solid var(--pk);background:var(--cr);color:var(--ink);border-radius:20px;padding:6px 14px;font:700 14px 'Mali';cursor:pointer}
+.tabs button.on{background:var(--dp);border-color:var(--dp);color:#fff}
+.temp{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#fff,var(--lv));border-radius:20px;padding:10px 14px;border:2px dashed var(--pk);margin-bottom:12px}
+.temp .big{font-family:'Zen Maru Gothic';font-size:26px;font-weight:700;color:var(--dp)}
+.tl{position:relative;margin-left:8px;padding-left:22px;border-left:3px dotted var(--pk)}
+.st{position:relative;margin:0 0 12px;background:var(--cr);border:2px solid var(--ln);border-radius:18px;padding:10px 12px}
+.tl .st::before{content:'';position:absolute;left:-34px;top:12px;width:20px;height:20px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cg fill='%23f7a8c4' stroke='%23e8629a' stroke-width='3'%3E%3Cpath id='p' d='M0 0C-22-8-20-40 0-46 20-40 22-8 0 0Z'/%3E%3Cuse href='%23p' transform='rotate(72)'/%3E%3Cuse href='%23p' transform='rotate(144)'/%3E%3Cuse href='%23p' transform='rotate(216)'/%3E%3Cuse href='%23p' transform='rotate(288)'/%3E%3C/g%3E%3Ccircle r='6' fill='%23ffe36b'/%3E%3C/svg%3E") center/contain no-repeat;background-color:var(--bg);border-radius:50%}
+.st.done{opacity:.55}
+.st .tm{font-weight:700;color:var(--dp);font-size:14px}
+.st .pl{font-weight:700;font-size:16px}
+.st .nt{font-size:14px;margin-top:2px}
+.tr{margin-top:8px;background:#e8f7ee;border-radius:14px;padding:7px 10px;font-size:13.5px;border-left:5px solid #7cc9a0}
+.tr b{color:#2f7d58}
+.row{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1.5px dashed var(--ln);font-size:15.5px}
+.row:last-child{border:0}
+.row input{appearance:none;flex:0 0 24px;height:24px;border:2.5px solid var(--pk);border-radius:50%;background:#fff;margin:0;cursor:pointer}
+.row input:checked{background:var(--dp) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center/80%;border-color:var(--dp)}
+.row input:checked+span{text-decoration:line-through;opacity:.55}
+.sub{font-size:13px;opacity:.75}
+.pg{height:10px;background:#fff;border-radius:8px;border:2px solid var(--pk);overflow:hidden;margin:4px 0 8px}
+.pg i{display:block;height:100%;background:var(--dp);transition:width .3s}
+input[type=text],input[type=number]{font:inherit;border:2.5px solid var(--pk);border-radius:16px;padding:8px 12px;background:#fff;color:var(--ink);min-width:0}
+.btn{border:0;background:var(--dp);color:#fff;border-radius:16px;padding:9px 16px;font:700 15px 'Mali';box-shadow:0 3px 0 #b8407a;cursor:pointer}
+.add{display:flex;gap:6px;margin-top:10px}.add input:first-child{flex:1}.add input[type=number]{width:90px}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:3px solid var(--pk);border-radius:24px 24px 0 0;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0));display:flex;justify-content:space-around;max-width:480px;margin:0 auto;z-index:5}
+nav button{border:0;background:none;font:700 11px 'Mali';color:var(--ink);padding:4px 6px;border-radius:14px;opacity:.6;cursor:pointer}
+nav button i{display:block;font-style:normal;font-size:22px}
+nav button.on{opacity:1;background:var(--bg);color:var(--dp)}
+.petal{position:fixed;top:-30px;width:14px;height:14px;background:var(--pk);border-radius:80% 0 80% 0;opacity:.7;pointer-events:none;animation:fall linear infinite;z-index:1}
+@keyframes fall{to{transform:translate(40px,105vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.petal{display:none}}
+button:focus-visible,input:focus-visible{outline:3px solid var(--dp);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.grid2 .tile{padding:16px 8px 12px}.grid2 .tile .i{font-size:34px}.tile small{display:block;font:500 12px 'Mali';opacity:.7;margin-top:2px}
+.fl{display:block;margin:8px 0}.fl span{display:block;font-size:13px;font-weight:700;margin:0 0 3px 4px}.fl input[type=text],.fl input[type=number],.fl input[type=time]{width:100%}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.back{border:0;background:none;font:700 15px 'Mali';color:var(--dp);padding:4px 2px 10px;cursor:pointer}
+.bf{display:flex;align-items:center;gap:10px;margin:10px 0;font-weight:700}.bf input{width:24px;height:24px;accent-color:#e8629a}
+.tot{background:var(--lv);border-radius:16px;padding:8px 12px;font-weight:700;margin-top:8px}
+.tag{font-size:11px;background:var(--mt);border-radius:10px;padding:1px 7px;margin-left:4px}
+.bar{height:8px;border-radius:6px;background:var(--pk);margin:2px 0 6px}
+.add select{font:inherit;border:2.5px solid var(--pk);border-radius:16px;background:#fff;color:var(--ink);padding:0 6px}
+.fl textarea{width:100%;font:inherit;line-height:1.5;border:2.5px solid var(--pk);border-radius:16px;padding:8px 12px;background:#fff;color:var(--ink);resize:vertical;min-height:90px}
+.fl select{width:100%;font:inherit;border:2.5px solid var(--pk);border-radius:16px;padding:8px 12px;background:#fff;color:var(--ink)}
+.x{border:0;background:var(--ln);color:var(--ink);border-radius:12px;padding:3px 10px;font:700 14px 'Mali';cursor:pointer}
+.trip{width:100%;text-align:left;font:inherit;color:var(--ink);cursor:pointer;display:block}.trip .row,.kv{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0}.kv span{opacity:.7}.kv b{text-align:right}
+.card .st{margin:8px 0}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{background:var(--lv);border-radius:12px;padding:2px 9px;font-size:12.5px;font-weight:700}
+.sync{font-size:12px;text-align:center;opacity:.7;margin-top:10px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="sk" viewBox="-50 -50 100 100"><g fill="#fff" stroke="#e8629a" stroke-width="3"><path id="pp" d="M0 0C-22-8-20-40 0-46 20-40 22-8 0 0Z"/><use href="#pp" transform="rotate(72)"/><use href="#pp" transform="rotate(144)"/><use href="#pp" transform="rotate(216)"/><use href="#pp" transform="rotate(288)"/></g><circle r="6" fill="#ffe36b"/></symbol></defs></svg>
+<div class="app" id="app"></div>
+<nav id="nav"></nav>
+
+<script>
+// ===== ตั้งค่า Supabase (ไม่ใส่ก็ใช้ได้ จะเก็บในเครื่องแทน) =====
+const SUPABASE_URL = "https://urlqcgrhugfdfykoyvvm.supabase.co";      // เช่น https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = "sb_publishable_l5QHcO1RVxZZKH31tLH5nA_KzW695sL"; // Publishable key (sb_publishable_...) หรือ anon key
+const TRIP_ID = "trip-book-tum-ann";
+const START = new Date("2026-12-21T00:00:00+09:00");
+
+// ===== ข้อมูลทริป (แก้ได้ตรงนี้) =====
+const DAYS = [
+ {n:1,date:"22/12",tmp:"6° / -5°",wear:"โค้ทชมพูขน + เสื้อไหมพรมครีม + บูทน้ำตาล",items:[
+  ["11:00","ข้าวหน้าปลาไหล Unagi Kushiyaki IZUMO","ซื้อขนม Gariguette (ปักหมุดไว้ในแมป)","เดินจากย่านอุเมดะ / Hankyu Umeda"],
+  ["12:00","เคาน์เตอร์แบรนด์ COSME","เครื่องสำอาง แปรงปัดแก้ม CANMAKE",""],
+  ["13:00","Daimaru","มี maison de fleur",""],
+  ["14:00","Daimaru ชั้น 13","Jill Stuart · Nintendo · เค้กไข่นุ่มๆ",""],
+  ["15:00","Hankyu Umeda ชั้นล่าง","ขนมกุหลาบ Tulip Rose · Sabrina · ขนมกล่องๆ กลับบ้าน",""],
+  ["16:00","Hep Five","Ichiban Kuji","เดินจาก Umeda ~5 นาที"],
+  ["17:00","Kiddy Land","Rilakkuma",""],
+  ["18:00","Yuzawaya","กรรไกรขลิบผ้า + ที่เลาะผ้า",""],
+  ["18:30","Yodobashi (9:30–22:00)","เครื่องพ่น แปรงล้างหน้า ฝาครอบ+ขาแขวน luna · กินข้าวเย็นในตึก Yodobashi","เดินจาก Umeda ~5 นาที"]]},
+ {n:2,date:"23/12",tmp:"6° / -1°",wear:"พาร์กาขนฟู + คาร์ดิแกนครีม + บูทขาว · ทำผมลอนๆ",items:[
+  ["08:30","ออกจากโรงแรม → Otsukaya Esaka","ร้านผ้าเปิด 10:00","รถไฟใต้ดิน Midosuji Line (สายแดง) จาก Umeda ไปทางสถานี Esaka ~15 นาที"],
+  ["09:00","Yoshinoya","ร้านอยู่ทางขวาสถานี",""],
+  ["10:00","Donut Museum","อยู่ทางซ้ายสถานี",""],
+  ["11:00","ซื้อผ้าที่ Otsukaya Esaka","",""],
+  ["13:00","เมืองโบราณ Tenjimbashi","","Tanimachi Line (สายม่วง) / Sakaisuji Line → Tenjimbashisuji 6-chome"],
+  ["14:30","กลับ Umeda · ขนม Hannoc","","ลงสถานี Nakazakicho (Tanimachi Line) เดินไปร้าน"],
+  ["15:00","ร้านฟิกเกอร์มือ 2 Lashinbang","",""],
+  ["16:00","Hep Five · ของทอดบุฟเฟต์","",""],
+  ["17:00","Donki · GIGO / Round One","",""],
+  ["18:00","Yakiniku Rikimaru (บุฟเฟต์เนื้อย่าง)","ใกล้ร้านติ่มซำ",""]]},
+ {n:3,date:"24/12",tmp:"6° / -2°",wear:"โค้ทม่วงขนขาว + ผ้าพันคอลายแมว + บูทม่วง",items:[
+  ["08:30","วัด DARUMA (Katsuo-ji)","นั่งรถไฟประมาณ 45 นาที","Hankyu Takarazuka Line จาก Umeda → Ishibashi Handai-mae → เปลี่ยนสาย Minoo Line → Minoo แล้วต่อรถบัส/เดินขึ้นวัด"],
+  ["09:15","ข้าวเช้า Burger King (เปิด 9:00)","แถวสถานีที่ลง",""],
+  ["11:00","ขากลับแวะห้าง Minoo Q's Mall","",""],
+  ["12:30","SPA & SAUNA + คาเฟ่","","ถ้ากลับด้วย Minoo Line ใช้เส้นเดิมกลับ Umeda"],
+  ["13:00","Daimaru · Jill Stuart / Hankyu Umeda","ขนมกล่องๆ กลับบ้าน",""],
+  ["17:00","แวะดู ReFa","",""]]},
+ {n:4,date:"25/12",tmp:"7° / -2°",wear:"เสื้อขนฟูสีครีม + เสื้อยืดขาว-แดง + กระโปรงแดงจุด + ถุงมือ",items:[
+  ["08:00","สวนสตรอว์เบอร์รี (เปิด 10:00)","ถ่ายรูปสวนดอกไม้ + สตรอว์เบอร์รี","ตรวจชื่อสถานี/สายของสวนใน Google Maps แล้วใส่ไว้ตรงนี้"],
+  ["10:00","หาข้าวแถวสวน → Shiroi Koibito","เครปผลไม้ ร้านพุดดิ้งฮอกไกโด","ต่อรถไฟตามแมป"],
+  ["13:30","งานคริสต์มาส Tenshiba","",""],
+  ["15:00","เบเกอรี่ Salon de Moncher","ขนมมิลเฟย",""],
+  ["16:00","สวนกุหลาบ","",""],
+  ["17:30","Umeda Sky Building","งานคริสต์มาส · หาอะไรกินในตึก","เดินจากสถานี Osaka/Umeda ~10 นาที"]]},
+ {n:5,date:"26/12",tmp:"6° / -3°",wear:"เสื้อเทา+ผ้าพันคอแดง กางเกงแดงจุด + บูทครีม",items:[
+  ["08:00","รถบัส Hankyu Express → Arima Onsen","","บัสด่วนที่ป้าย Hankyu Umeda Bus Terminal ใช้เวลาราว 1 ชม."],
+  ["09:30","Arima Onsen","แช่เท้า เดินเล่น กินคาเฟ่",""],
+  ["12:00","เข้า Kobe · หาเนื้อโกเบ","","Kobe Electric Railway (Arima Line) → Shinkaichi / Sannomiya"],
+  ["12:30","Chinatown Kobe (Nankinmachi)","","JR/Hanshin ลง Motomachi เดินเข้าได้"],
+  ["14:00","เดินทางกลับ","","Hanshin / JR Kobe Line กลับ Osaka-Umeda"]]},
+ {n:6,date:"27/12",tmp:"8° / -4°",wear:"โค้ทน้ำตาลผูกผ้า + ไหมพรมครีม + กระโปรงเทา + บูทน้ำตาล",items:[
+  ["—","กลับบ้าน ✈","เช็กเที่ยวบิน XJ ก่อนออกจากโรงแรม","ไปสนามบิน KIX: JR Haruka จาก Osaka Station หรือ Nankai จาก Namba (ช่วงต้องเช็กตารางเวลา)"]]}
+];
+const PACK = {
+ "กระเป๋า":["บัตรเครดิต / Travel Card YouTrip","พาสปอร์ต + ซองใส่ใบเสร็จ","เงินเยน 2.5 แสนเยน","ยาดม + สายคล้องคอ","กระเป๋าม่วงคุมะ","หูฟัง + ที่แขวนหูฟัง","พาวเวอร์แบงก์ 2 อัน (ม่วง/ชมพู)","ไม้เซลฟี่ขาว","สายคล้องกล้อง Canon ขาว","ที่แขวนลิปไวท์ปาก","พวงกุญแจทิชชูเปียก","กล้อง luna + สายคล้องคอ"],
+ "เอกสาร & ไอที":["ตั๋วเครื่องบิน (ไป/กลับ)","เอกสารจองโรงแรม / พาสรถไฟ","ซิมการ์ด / Pocket Wi-Fi","สายชาร์จ","หัวแปลงปลั๊กไฟ"],
+ "ของใช้ส่วนตัว":["ยาประจำตัว / ลดไข้ / แก้แพ้ / พลาสเตอร์","ขนตาปลอม","วิกผม","กระเป๋าเครื่องสำอาง","หมวก","ถุงเท้า","กระจกแต่งหน้า","ยาสีฟัน ยาบ้วนปาก แปรงสีฟัน","พาเลทแต่งหน้า","บีบีครีม","แว่นตา / แว่นกันแดด / คอนแทคเลนส์","หมอนรองคอ","หวีดีคับชมพู","ผงโรยเท้า"],
+ "น้ำหนักกระเป๋ากลับ":["กระเป๋าเขียวแอน (เครื่องสำอาง/ขนม) 25 กก.","กระเป๋าพี่ตั้ม (ฟิกเกอร์/เครื่องนวดหน้า/ขนม) 22 กก.","กระเป๋าล้อลาก (ผ้า/รองเท้าแอน) 18 กก.","กระเป๋าดำขยายได้ (เสื้อผ้า+รองเท้า) 17 กก.","กระเป๋าล้อลากสีเทา (ของกิน) 18 กก."]};
+const SHOP = {
+ "Hankyu / Daimaru (Umeda)":["ขนมกุหลาบ Tulip Rose (ใต้ตึก Hankyu)","ขนม Sabrina (Daimaru)","Graniph / Graneir ชั้น B2F","แปรง Jill Stuart"],
+ "Yodobashi / Yuzawaya / Daiso":["เครื่องพ่นหน้า","แปรงล้างหน้า","ฝาครอบ + ขาแขวน luna","กรรไกรขลิบผ้า","ที่เลาะผ้า","ผ้าตัดเย็บกระเป๋า","ที่หนีบผมตรง ReFa"],
+ "ดรักสโตร์":["แป้ง Kate · แป้งดังโงะตลับสี่เหลี่ยม","แปรงปัดแป้ง Kate","Elixir ขวดทอง","V cream ใช้ตอนนอน","CANMAKE แปรงปัดแก้ม"]};
+const FOOD = ["Yorkys Creperie (Umeda Food Hall B2F)","Aburiya Umeda บุฟเฟต์เนื้อ (จองล่วงหน้า 1 เดือน!)","โอเด้งบุฟเฟต์","Taitenmen Dakis (เปิด 11:00 พักบ่าย 2 ครึ่ง) · กินเช้าวันที่ 23","Kura Sushi","Yoshinoya","ข้าวหน้าปลาไหล Unagi","ทาโกยากิทำเอง","ร้านขนม Masahiko Ozumi Paris","ของทอดบุฟเฟต์ใต้ตึก Umeda 2,000–3,000 เยน"];
+
+// ===== สถานะ + ซิงก์ =====
+const uid=()=>Math.random().toString(36).slice(2,9),N=v=>+v||0,fmt=n=>Math.round(n).toLocaleString(),$=s=>document.querySelector(s),cp=o=>JSON.parse(JSON.stringify(o)),
+esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),
+MO="ม.ค.,ก.พ.,มี.ค.,เม.ย.,พ.ค.,มิ.ย.,ก.ค.,ส.ค.,ก.ย.,ต.ค.,พ.ย.,ธ.ค.".split(","),
+fd=s=>{const d=new Date(s+"T00:00");return s&&!isNaN(d)?d.getDate()+" "+MO[d.getMonth()]:""},
+ppl=s=>s.split(/[,，]/).map(x=>x.trim()).filter(Boolean),
+nowL=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)},
+get=(o,p)=>p.split(".").reduce((a,k)=>a?.[k],o),
+set=(o,p,v)=>{const a=p.split("."),l=a.pop();a.reduce((x,k)=>x[k],o)[l]=v},
+mkTrip=o=>({id:uid(),name:"",dest:"",start:"",end:"",people:[],c:{},x:[],fl:{bags:[]},ht:{},rate:.23,days:[],lists:{pack:{"ของที่ต้องเตรียม":[]},shop:{"อยากซื้อ":[]},food:{"อยากกิน":[]}},...o});
+function seed(){return mkTrip({name:"ทริปโอซาก้า",dest:"โอซาก้า, ญี่ปุ่น",start:"2026-12-21",end:"2026-12-27",people:["ตั้ม","แอน"],
+ days:DAYS.map(d=>{const m=d.tmp.match(/(-?\d+)°\s*\/\s*(-?\d+)°/);return{date:d.date,hi:m?m[1]:"",lo:m?m[2]:"",wear:d.wear,items:d.items.map(i=>({t:i[0],p:i[1],n:i[2],r:i[3]}))}}),
+ lists:{pack:cp(PACK),shop:cp(SHOP),food:{"อยากกิน":[...FOOD]}}})}
+function norm(r){if(r&&r.trips)return r;const t=seed();if(r&&(r.c||r.x)){for(const k in r.c||{})t.c[k.replace(/^st(\d+)-/,(m,n)=>"st"+(n-1)+"-")]=r.c[k];t.x=r.x||[];t.fl=Object.assign({bags:[]},r.fl);t.ht=r.ht||{};t.rate=r.rate||.23}return{trips:[t],cur:null}}
+let S=norm(JSON.parse(localStorage.getItem("trip")||"null")),view="lib",di=0,edit=0,hdr=0,sb=null,syncMsg="เก็บในเครื่องนี้";
+const T=()=>S.trips.find(t=>t.id==S.cur)||S.trips[0];
+if(SUPABASE_URL&&SUPABASE_ANON_KEY&&window.supabase){sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ sb.from("trip_state").select("data").eq("id",TRIP_ID).maybeSingle().then(({data})=>{if(data?.data){S=norm(data.data);localStorage.setItem("trip",JSON.stringify(S));syncMsg="ซิงก์กับ Supabase แล้ว";draw()}})}
+let tm;function save(){localStorage.setItem("trip",JSON.stringify(S));if(!sb)return;clearTimeout(tm);tm=setTimeout(async()=>{const{error}=await sb.from("trip_state").upsert({id:TRIP_ID,data:S,updated_at:new Date().toISOString()});syncMsg=error?"ซิงก์ไม่สำเร็จ (เก็บในเครื่องแล้ว)":"ซิงก์แล้ว ♡"},600)}
+
+// ===== ตัวช่วยสร้างฟอร์ม =====
+const sk=(sz,st="")=>`<svg class="sak" width="${sz}" height="${sz}" style="${st}"><use href="#sk"/></svg>`;
+const F=(p,l,ph="",ty="text")=>{let v=get(T(),p);if(Array.isArray(v))v=v.join(", ");return `<label class="fl"><span>${l}</span><input type="${ty}" ${ty=="number"?'inputmode="decimal" step="any"':""} data-b="${p}" value="${esc(v)}" placeholder="${ph}"></label>`},
+TA=(p,l,ph="")=>`<label class="fl"><span>${l}</span><textarea rows="4" data-b="${p}" placeholder="${ph}">${esc(get(T(),p))}</textarea></label>`,
+SEL=(p,l,o)=>{const v=get(T(),p)??"";return `<label class="fl"><span>${l}</span><select data-b="${p}"><option value="">เลือก</option>${o.map(x=>`<option ${x==v?"selected":""}>${esc(x)}</option>`).join("")}</select></label>`},
+two=(a,b)=>`<div class="two">${a}${b}</div>`,kv=(l,v)=>v||v===0?`<div class="kv"><span>${l}</span><b>${esc(v)}</b></div>`:"",
+PAY=["บัตรเครดิต","เงินสด","YouTrip","โอน/พร้อมเพย์"];
+const NAV=[["home","🌸","ทริป"],["plan","🚆","แพลน"],["pack","🧳","จัดกระเป๋า"],["shop","🛍","ช้อป"],["food","🍡","กิน"],["money","🐷","ค่าใช้จ่าย"]];
+
+// ===== ค่าใช้จ่าย (รวมจากฟอร์ม + ที่จดเอง) =====
+function allX(){const t=T(),f=t.fl,h=t.ht,r=[],a=(g,n,y,c="THB")=>{if(N(y)>0)r.push({g,n,y:N(y),c,auto:1})};
+ a("ตั๋วเครื่องบิน","ค่าตั๋ว"+(f.app?" ("+f.app+")":"")+(f.pay?" · "+f.pay:""),f.price);
+ a("ตั๋วเครื่องบิน","เก้าอี้พิเศษ"+(f.seatOut?" ขาไป "+f.seatOut:"")+(f.seatRet?" ขากลับ "+f.seatRet:""),f.seatFee);
+ a("ตั๋วเครื่องบิน","อาหารบนเครื่อง "+(f.mealQty||"")+" จาน",f.mealFee);
+ (f.bags||[]).forEach(b=>a("ตั๋วเครื่องบิน",`น้ำหนักเพิ่ม ${b.who||""} ${b.dir||""} ${b.kg||0} กก.${b.pay?" · "+b.pay:""}`,b.price));
+ a("ซิมการ์ด","ซิม "+(f.simCarrier||"")+" x"+(f.simQty||1)+(f.simPay?" · "+f.simPay:""),f.simPrice);
+ const nm="โรงแรม "+(h.name||"")+" "+(h.nights||"")+" คืน"+(h.card?" · "+h.card:"");
+ if(N(h.paidThb)>0)a("โรงแรม",nm,h.paidThb);else a("โรงแรม",nm,hotelYen(),"JPY");
+ return r.concat(t.x.map((e,i)=>({g:e.g||"อื่นๆ",n:e.n,y:e.y,c:e.c||"JPY",i,pl:e.pl,at:e.at,pay:e.pay})))}
+const hotelYen=()=>N(T().ht.nights)*N(T().ht.perNight),toThb=e=>e.c=="JPY"?e.y*T().rate:e.y,totalThb=()=>allX().reduce((a,e)=>a+toThb(e),0);
+function money(){const t=T(),L=allX(),G={};L.forEach(e=>(G[e.g]=G[e.g]||[]).push(e));const TT=totalThb();
+ const amt=e=>e.c=="JPY"?`¥${fmt(e.y)} <span class="sub">≈฿${fmt(e.y*t.rate)}</span>`:`฿${fmt(e.y)}`;
+ return `<div class="card"><h2>🐷 ค่าใช้จ่ายทั้งทริป</h2><div style="font-size:30px;font-weight:700;color:var(--dp);font-family:'Zen Maru Gothic'">฿${fmt(TT)}</div>${F("rate","เรตเยน → บาท (1 เยน = ? บาท)","0.23","number")}</div>
+ ${Object.keys(G).map(g=>{const sub=G[g].reduce((a,e)=>a+toThb(e),0);return `<div class="card"><h2>${esc(g)}<span class="pill" style="margin-left:auto">฿${fmt(sub)}</span></h2><div class="bar" style="width:${TT?Math.max(4,sub/TT*100):0}%"></div>
+ ${G[g].map(e=>`<div class="row"><span style="flex:1">${esc(e.n)}${e.auto?'<span class="tag">จากฟอร์ม</span>':""}<div class="sub">${esc([e.pl&&"📍"+e.pl,e.at&&e.at.replace("T"," "),e.pay].filter(Boolean).join(" · "))}</div></span><b style="text-align:right">${amt(e)}</b>${e.auto?"":`<button class="x" data-a="xdel" data-x="${e.i}">×</button>`}</div>`).join("")}</div>`}).join("")||'<div class="card sub">ยังไม่มีรายการ กรอกในหน้าตั๋ว/โรงแรม หรือเพิ่มด้านล่าง</div>'}
+ <div class="card"><h2>＋ เพิ่มรายการเอง</h2><label class="fl"><span>รายการ</span><input type="text" id="xn" placeholder="เช่น ราเมง"></label><label class="fl"><span>สถานที่ซื้อ</span><input type="text" id="xp" placeholder="เช่น Donki Umeda"></label>
+ <div class="two"><label class="fl"><span>จำนวนเงิน</span><input type="number" id="xy" inputmode="decimal"></label><label class="fl"><span>สกุล</span><select id="xc"><option value="JPY">¥ เยน</option><option value="THB">฿ บาท</option></select></label></div>
+ <div class="two"><label class="fl"><span>หมวด</span><select id="xg"><option>กิน</option><option>ช้อปปิ้ง</option><option>เดินทาง</option><option>ที่เที่ยว</option><option>อื่นๆ</option></select></label><label class="fl"><span>จ่ายผ่านอะไร</span><select id="xpay">${PAY.map(p=>`<option>${p}</option>`).join("")}</select></label></div>
+ <label class="fl"><span>วันที่และเวลา (ตั้งเป็นเวลาปัจจุบันให้ แก้ได้)</span><input type="datetime-local" id="xat" value="${nowL()}"></label><button class="btn" data-a="xa">เพิ่มเข้าค่าใช้จ่าย</button></div>`}
+
+// ===== หน้าจอ =====
+function lib(){return `<div class="hero">${sk(60,"right:-10px;bottom:-12px;opacity:.5")}<span class="vt">旅の本</span><h1>สมุดทริปของเรา 🌸</h1><p>เลือกทริป หรือเพิ่มทริปใหม่</p></div><div style="height:12px"></div>
+ ${S.trips.map(t=>`<button class="card trip" data-a="open" data-x="${t.id}"><h2>🌸 ${esc(t.name)||"ทริปไม่มีชื่อ"}</h2><div>📍 ${esc(t.dest)}</div><div class="sub">${fd(t.start)} – ${fd(t.end)} · ไป ${t.people.length} คน${t.people.length?": "+esc(t.people.join(", ")):""}</div></button>`).join("")}
+ <button class="tile" style="width:100%" data-a="v" data-x="new"><span class="i">＋</span>เพิ่มทริปใหม่</button>`}
+function newf(){return `<button class="back" data-a="v" data-x="lib">‹ สมุดทริป</button><div class="card"><h2>🌸 เพิ่มทริปใหม่</h2>${[["name","ชื่อทริป","เช่น ทริปโอซาก้า"],["dest","ไปที่ไหน","เช่น โอซาก้า, ญี่ปุ่น"],["start","วันไป","date"],["end","วันกลับ","date"],["people","ใครไปบ้าง (คั่นด้วย ,)","ตั้ม, แอน"]].map(([k,l,p])=>`<label class="fl"><span>${l}</span><input id="n-${k}" type="${p=="date"?"date":"text"}" placeholder="${p=="date"?"":p}"></label>`).join("")}<button class="btn" data-a="mk">สร้างทริป</button></div>`}
+function home(){const t=T(),d=Math.ceil((new Date(t.start+"T00:00+09:00")-new Date())/864e5),ended=new Date(t.end+"T23:59")<new Date(),
+ tp=t.days.filter(x=>x.hi!==""&&x.lo!==""&&x.hi!=null&&x.lo!=null),av=a=>a.length?a.reduce((s,v)=>s+N(v),0)/a.length:null,hi=av(tp.map(x=>x.hi)),lo=av(tp.map(x=>x.lo)),f=t.fl,h=t.ht,
+ fc=allX().filter(e=>e.auto&&e.g!="โรงแรม").reduce((a,e)=>a+toThb(e),0),hc=allX().filter(e=>e.g=="โรงแรม").reduce((a,e)=>a+toThb(e),0);
+ const hero=hdr?`<div class="card"><h2>✎ แก้ไขข้อมูลทริป</h2>${F("name","ชื่อทริป")}${F("dest","ไปที่ไหน")}${two(F("start","วันไป","","date"),F("end","วันกลับ","","date"))}${F("people","ใครไปบ้าง (คั่นด้วย ,)","ตั้ม, แอน")}<button class="btn" data-a="hdr">✓ เสร็จ</button></div>`:
+ `<div class="hero"><button class="back" style="color:#fff;padding:0 0 6px" data-a="v" data-x="lib">‹ สมุดทริป</button>${sk(60,"right:-10px;bottom:-12px;opacity:.5")}<span class="vt">大阪の旅</span><button class="x" data-a="hdr" style="position:absolute;right:14px;bottom:12px">✎ แก้ไข</button>
+ <h1>${esc(t.name)||"ทริปใหม่"}</h1><p>📍 ${esc(t.dest)} · ${fd(t.start)} – ${fd(t.end)}</p><p>👭 ไป ${t.people.length} คน: ${esc(t.people.join(", "))}</p>
+ <div class="cd">${isNaN(d)?"ตั้งวันเดินทางด้วยปุ่มแก้ไข":ended?"ทริปจบแล้ว ♡":d>0?`อีก <b>${d}</b> วันเดินทาง`:"กำลังเที่ยวอยู่! ✈"}</div></div>`;
+ const bags=(f.bags||[]).filter(b=>N(b.kg)).map(b=>`${b.who||"?"} ${b.dir||""} ${b.kg} กก.`).join(", ");
+ return hero+`<div class="card"><h2>🌡 อุณหภูมิเฉลี่ยทั้งทริป</h2>${tp.length?`<div style="font-family:'Zen Maru Gothic';font-size:30px;font-weight:700;color:var(--dp)">${((hi+lo)/2).toFixed(1)}°C</div><div class="sub">สูงเฉลี่ย ${hi.toFixed(1)}° · ต่ำเฉลี่ย ${lo.toFixed(1)}° (จาก ${tp.length} วัน)</div><div class="chips">${t.days.map((x,i)=>`<span class="chip">D${i+1} ${x.hi===""?"–":x.hi+"°"}/${x.lo===""?"–":x.lo+"°"}</span>`).join("")}</div>`:'<div class="sub">กรอกองศาของแต่ละวันในหน้า “แพลน” แล้วจะคำนวณให้</div>'}</div>
+ <button class="card trip" data-a="v" data-x="flight"><h2>✈ ตั๋วเครื่องบิน<span class="pill" style="margin-left:auto">${f.ref||"กรอกข้อมูล ›"}</span></h2>${kv("จองผ่าน",f.app)}${kv("ขาไป",[f.outNo,f.outDay,f.outDep&&f.outDep+(f.outArr?" → "+f.outArr:"")].filter(Boolean).join(" · "))}${kv("ขากลับ",[f.retNo,f.retDay,f.retDep&&f.retDep+(f.retArr?" → "+f.retArr:"")].filter(Boolean).join(" · "))}${kv("ที่นั่ง",[f.seatOut,f.seatRet].filter(Boolean).join(" / "))}${kv("น้ำหนักเพิ่ม",bags)}${kv("อาหารเพิ่ม",f.mealQty?f.mealQty+" จาน"+(f.mealMenu?" · "+f.mealMenu:""):"")}${kv("ซิม",f.simQty?f.simQty+" ซิม "+(f.simCarrier||""):"")}${kv("จ่ายด้วย",f.pay)}${kv("รวมค่าตั๋ว+ซิม",fc?"฿"+fmt(fc):"")}</button>
+ <button class="card trip" data-a="v" data-x="hotel"><h2>🏨 โรงแรม<span class="pill" style="margin-left:auto">${h.name?"":"กรอกข้อมูล ›"}</span></h2>${kv("ชื่อ",h.name)}${kv("เลขจอง",h.ref)}${kv("จองผ่าน",h.app)}${kv("ห้อง",[h.room,h.size&&h.size+" ตร.ม."].filter(Boolean).join(" · "))}${kv("เข้าพัก",h.nights?`${h.nights} คืน × ¥${fmt(N(h.perNight))} = ¥${fmt(hotelYen())}`:"")}${kv("อาหารเช้า",h.name?(h.bf?"✓ มี":"✗ ไม่มี"):"")}${kv("จ่ายด้วย",h.card)}${kv("รวม",hc?"฿"+fmt(hc):"")}</button>
+ <div class="card"><h2>🐷 ใช้จ่ายไปแล้ว</h2><b style="font-size:22px;color:var(--dp)">฿${fmt(totalThb())}</b></div>
+ <div class="sync">${syncMsg}</div><button class="x" data-a="deltrip" style="display:block;margin:10px auto">ลบทริปนี้</button>`}
+function plan(){const t=T(),D=t.days;if(!D.length)return `<div class="card"><h2>ยังไม่มีวันเที่ยว</h2><button class="btn" data-a="addday">＋ เพิ่มวันเที่ยว</button></div>`;
+ di=Math.min(di,D.length-1);const d=D[di],b0=`days.${di}`;
+ return `<div class="tabs">${D.map((x,i)=>`<button data-a="day" data-x="${i}" class="${i==di?"on":""}">Day${i+1} · ${esc(x.date)}</button>`).join("")}<button data-a="addday">＋ วัน</button></div>
+ <div class="card"><h2>❄ อุณหภูมิ & ชุด</h2>${two(F(b0+".hi","สูงสุด °C","6","number"),F(b0+".lo","ต่ำสุด °C","-2","number"))}${F(b0+".date","วันที่","22/12")}${TA(b0+".wear","ชุดวันนี้","พิมพ์ได้ยาวๆ เช่น โค้ท เสื้อ กระโปรง รองเท้า ถุงมือ")}</div>
+ <div style="display:flex;gap:8px;margin-bottom:10px"><button class="btn" data-a="edit">${edit?"✓ เสร็จ":"✎ แก้ตารางเวลา"}</button><button class="btn" data-a="additem">＋ เพิ่มจุดหมาย</button>${edit?'<button class="x" data-a="delday">ลบวันนี้</button>':""}</div>
+ <div class="tl">${d.items.map((s,j)=>{const k="st"+di+"-"+j,b=`${b0}.items.${j}`;return edit?`<div class="st">${two(F(b+".t","เวลา","09:00"),F(b+".p","ไปที่ไหน"))}${F(b+".n","โน้ต")}${F(b+".r","วิธีไป / สายรถไฟ")}<button class="x" data-a="delitem" data-x="${j}">ลบจุดนี้ ×</button></div>`:
+ `<div class="st ${t.c[k]?"done":""}"><label class="row" style="border:0;padding:0"><input type="checkbox" data-k="${k}" ${t.c[k]?"checked":""}><span><span class="tm">${esc(s.t)}</span><div class="pl">${esc(s.p)}</div>${s.n?`<div class="nt">${esc(s.n)}</div>`:""}</span></label>${s.r?`<div class="tr"><b>🚃 วิธีไป:</b> ${esc(s.r)}</div>`:""}</div>`}).join("")}</div>
+ <div class="sub" style="text-align:center">ชื่อสายรถไฟเป็นแนวทาง เช็กเวลาจริงใน Google Maps / Navitime อีกที</div>`}
+function lists(kind,pre){const t=T(),L=t.lists[kind];let all=0,ok=0,h="";
+ for(const g in L){h+=`<div class="card"><h2>${esc(g)}</h2>`;L[g].forEach((x,i)=>{all++;const k=pre+x;if(t.c[k])ok++;h+=`<div class="row"><input type="checkbox" data-k="${esc(k)}" ${t.c[k]?"checked":""}><span style="flex:1">${esc(x)}</span><button class="x" data-a="ldel" data-x="${kind}" data-y="${esc(g)}" data-z="${i}">×</button></div>`});
+ h+=`<div class="add"><input type="text" placeholder="＋ เพิ่มรายการ"><button class="btn" data-a="ladd" data-x="${kind}" data-y="${esc(g)}">เพิ่ม</button></div></div>`}
+ return `<div class="card"><b>ทำแล้ว ${ok}/${all}</b><div class="pg"><i style="width:${all?ok/all*100:0}%"></i></div></div>${h}<div class="card"><div class="add" style="margin:0"><input type="text" placeholder="＋ เพิ่มหมวดใหม่"><button class="btn" data-a="gadd" data-x="${kind}">เพิ่มหมวด</button></div></div>`}
+function flight(){const t=T(),f=(k,l,p,y)=>F("fl."+k,l,p,y);
+ return `<button class="back" data-a="v" data-x="home">‹ กลับหน้าทริป</button>
+ <div class="card"><h2>✈ การจองเที่ยวบิน</h2>${f("ref","หมายเลขการจอง","ABC123")}${f("app","จองผ่านแอป / เว็บ","AirAsia, Traveloka")}
+ <b>ขาไป</b>${two(f("outNo","เที่ยวบิน","XJ612"),f("outDay","วันที่","22 ธ.ค."))}${two(f("outDep","ออกเวลา","","time"),f("outArr","ถึงเวลา","","time"))}
+ <b>ขากลับ</b>${two(f("retNo","เที่ยวบิน","XJ611"),f("retDay","วันที่","27 ธ.ค."))}${two(f("retDep","ออกเวลา","","time"),f("retArr","ถึงเวลา","","time"))}</div>
+ <div class="card"><h2>💳 ค่าตั๋ว & การจ่าย</h2>${f("price","ค่าตั๋วรวม (บาท)","0","number")}${f("pay","จ่ายผ่านอะไร","บัตร / โอน / ผ่อน")}${two(f("card","บัตรที่ใช้","เช่น SCB"),f("inst","ผ่อน (เดือน)","0","number"))}${f("note","หมายเหตุ","")}</div>
+ <div class="card"><h2>💺 เก้าอี้พิเศษ</h2>${f("seatFee","ค่าเลือกที่นั่งรวม (บาท)","0","number")}${two(f("seatOut","ที่นั่งขาไป","29A"),f("seatRet","ที่นั่งขากลับ","44A"))}</div>
+ <div class="card"><h2>🍱 อาหารบนเครื่อง</h2>${two(f("mealQty","ซื้อเพิ่มกี่จาน","0","number"),f("mealFee","ค่าอาหารรวม (บาท)","0","number"))}${f("mealMenu","รายการอาหารที่จอง","")}</div>
+ <div class="card"><h2>🧳 ซื้อน้ำหนักเพิ่ม (แยกรายคน)</h2>${(t.fl.bags||[]).map((b,i)=>{const p=`fl.bags.${i}.`;return `<div class="st">${two(SEL(p+"who","ของใคร",t.people),SEL(p+"dir","เที่ยวบิน",["ขาไป","ขากลับ"]))}${two(F(p+"kg","กี่กิโล","0","number"),F(p+"price","ราคา (บาท)","0","number"))}${F(p+"pay","จ่ายผ่านอะไร","บัตร / เงินสด")}<button class="x" data-a="bagdel" data-x="${i}">ลบ ×</button></div>`}).join("")}<button class="btn" data-a="bagadd">＋ เพิ่มคนซื้อน้ำหนัก</button></div>
+ <div class="card"><h2>📶 ซิมการ์ด</h2>${f("simCarrier","ซื้อค่ายไหน","")}${two(f("simQty","กี่ซิม","1","number"),f("simPrice","ราคารวม (บาท)","0","number"))}${f("simPay","จ่ายผ่านอะไร","บัตร / พร้อมเพย์")}</div>`}
+function hotel(){const t=T(),h=(k,l,p,y)=>F("ht."+k,l,p,y);
+ return `<button class="back" data-a="v" data-x="home">‹ กลับหน้าทริป</button>
+ <div class="card"><h2>🏨 โรงแรม</h2>${h("name","ชื่อโรงแรม","")}${h("app","จองผ่านแอป","Agoda, Booking")}${h("ref","หมายเลขการจอง","")}${two(h("size","ขนาดห้อง (ตร.ม.)","","number"),h("room","แบบห้อง","Standard Double"))}
+ <label class="bf"><input type="checkbox" data-b="ht.bf" ${t.ht.bf?"checked":""}> มีอาหารเช้า</label></div>
+ <div class="card"><h2>💴 ราคา & การจ่าย</h2>${two(h("nights","จำนวนคืน","6","number"),h("perNight","ราคาต่อคืน (เยน)","0","number"))}<div class="tot" id="htot"></div>
+ ${h("paidThb","ยอดที่รูดบัตรจริง (บาท) ถ้ามี","ใส่แล้วใช้ยอดนี้แทน","number")}${h("card","จ่ายผ่านบัตรอะไร","SCB, YouTrip")}${h("note","หมายเหตุ","")}</div>`}
+const htot=()=>{const e=$("#htot");if(e)e.textContent=`รวม ¥${fmt(hotelYen())} ≈ ฿${fmt(hotelYen()*T().rate)}`};
+function draw(){const m={lib,new:newf,home,plan,flight,hotel,pack:()=>lists("pack","p:"),shop:()=>lists("shop","s:"),food:()=>lists("food","f:"),money};
+ $("#nav").style.display=view=="lib"||view=="new"?"none":"flex";
+ $("#nav").innerHTML=NAV.map(n=>`<button data-a="v" data-x="${n[0]}" class="${n[0]==view?"on":""}"><i>${n[1]}</i>${n[2]}</button>`).join("");
+ $("#app").innerHTML=m[view]();htot()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const{a,x,y,z}=b.dataset,t=S.cur?T():null,pv=()=>b.previousElementSibling.value.trim();let top=0;
+ if(a=="open"){S.cur=x;view="home";di=0;edit=0;hdr=0;top=1}
+ else if(a=="v"){view=x;top=1}
+ else if(a=="hdr")hdr=!hdr;
+ else if(a=="mk"){const g=k=>$("#n-"+k).value.trim(),n=mkTrip({name:g("name"),dest:g("dest"),start:g("start"),end:g("end"),people:ppl(g("people"))});S.trips.push(n);S.cur=n.id;view="home";top=1}
+ else if(a=="deltrip"){if(!confirm("ลบทริปนี้ถาวร?"))return;S.trips=S.trips.filter(q=>q.id!=S.cur);S.cur=null;view="lib";top=1}
+ else if(a=="day")di=+x;
+ else if(a=="addday"){const d=new Date(t.start+"T00:00");d.setDate(d.getDate()+t.days.length);t.days.push({date:isNaN(d)?"":d.getDate()+"/"+(d.getMonth()+1),hi:"",lo:"",wear:"",items:[]});di=t.days.length-1;edit=1}
+ else if(a=="delday"){if(!confirm("ลบวันนี้?"))return;t.days.splice(di,1);di=Math.max(0,di-1)}
+ else if(a=="edit")edit=!edit;
+ else if(a=="additem"){t.days[di].items.push({t:"",p:"",n:"",r:""});edit=1}
+ else if(a=="delitem")t.days[di].items.splice(+x,1);
+ else if(a=="bagadd")t.fl.bags.push({who:"",dir:"",kg:"",price:"",pay:""});
+ else if(a=="bagdel")t.fl.bags.splice(+x,1);
+ else if(a=="ladd"){if(pv())t.lists[x][y].push(pv())}
+ else if(a=="ldel")t.lists[x][y].splice(+z,1);
+ else if(a=="gadd"){const v=pv();if(v&&!t.lists[x][v])t.lists[x][v]=[]}
+ else if(a=="xa"){const n=$("#xn").value.trim(),v=+$("#xy").value;if(!n||!v){alert("ใส่ชื่อรายการและจำนวนเงินก่อนนะ");return}t.x.push({n,y:v,pl:$("#xp").value.trim(),c:$("#xc").value,g:$("#xg").value,pay:$("#xpay").value,at:$("#xat").value||nowL()})}
+ else if(a=="xdel")t.x.splice(+x,1);
+ save();draw();if(top)scrollTo(0,0)});
+document.addEventListener("input",e=>{const p=e.target.dataset?.b;if(!p)return;const v=e.target.type=="checkbox"?e.target.checked:e.target.value;
+ set(T(),p,p=="people"?ppl(v):p=="rate"?N(v)||.23:v);save();htot()});
+document.addEventListener("change",e=>{const k=e.target.dataset?.k;if(k){T().c[k]=e.target.checked;save();draw()}});
+for(let i=0;i<9;i++){const p=document.createElement("i");p.className="petal";p.style.cssText=`left:${i*11+Math.random()*8}%;animation-duration:${9+Math.random()*8}s;animation-delay:${-Math.random()*12}s`;document.body.appendChild(p)}
+draw();
+</script>
+</body>
+</html>
