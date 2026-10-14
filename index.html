@@ -94,6 +94,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--dp);outline-off
 .edm{position:fixed;inset:0;background:rgba(60,20,40,.88);z-index:21;overflow:auto;padding:14px 12px calc(40px + env(safe-area-inset-bottom,0px))}
 .fcs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.fcol{width:32px;height:32px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--pk);cursor:pointer}.fcol.on{box-shadow:0 0 0 3px var(--dp)}
 .stb{width:42px;height:42px;font-size:24px;border:2px solid var(--ln);border-radius:12px;background:#fff;cursor:pointer}
+.lbn{position:fixed;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:var(--pk);color:#fff;font:700 26px/1 'Mali';cursor:pointer;z-index:22}.lbn.l{left:10px}.lbn.r{right:10px}
+.lbc{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#fff;font-weight:700}
+.gh{font:700 15px 'Zen Maru Gothic','Mali';color:var(--dp);margin:14px 4px 8px}
 .sync{font-size:12px;text-align:center;opacity:.7;margin-top:10px}
 </style>
 </head>
@@ -171,7 +174,7 @@ const FOOD = ["Yorkys Creperie (Umeda Food Hall B2F)","Aburiya Umeda บุฟ�
 const uid=()=>Math.random().toString(36).slice(2,9),N=v=>+v||0,fmt=n=>Math.round(n).toLocaleString(),$=s=>document.querySelector(s),cp=o=>JSON.parse(JSON.stringify(o)),
 esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),
 MO="ม.ค.,ก.พ.,มี.ค.,เม.ย.,พ.ค.,มิ.ย.,ก.ค.,ส.ค.,ก.ย.,ต.ค.,พ.ย.,ธ.ค.".split(","),
-fd=s=>{const d=new Date(s+"T00:00");return s&&!isNaN(d)?d.getDate()+" "+MO[d.getMonth()]:""},
+fd=(s,y)=>{const d=new Date(s+"T00:00");return s&&!isNaN(d)?d.getDate()+" "+MO[d.getMonth()]+(y?" "+d.getFullYear():""):""},
 ppl=s=>s.split(/[,，]/).map(x=>x.trim()).filter(Boolean),
 nowL=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)},
 get=(o,p)=>p.split(".").reduce((a,k)=>a?.[k],o),
@@ -184,7 +187,7 @@ function norm(r){if(r&&r.trips)return r;const t=seed();if(r&&(r.c||r.x)){for(con
 let S=norm(JSON.parse(localStorage.getItem("trip")||"null")),view="lib",di=0,edit=0,hdr=0,sb=null,syncMsg="เก็บในเครื่องนี้";
 const T=()=>S.trips.find(t=>t.id==S.cur)||S.trips[0];
 let P={};try{P=JSON.parse(localStorage.getItem("trip_ph")||"{}")}catch(e){}
-let lb="",tpH;const PK=k=>T().id+"|"+k;
+let lb="",lbL=[],lbN=0,tpH;const PK=k=>T().id+"|"+k;
 if(SUPABASE_URL&&SUPABASE_ANON_KEY&&window.supabase){sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
  sb.from("trip_state").select("data").eq("id",TRIP_ID+"-ph").maybeSingle().then(({data})=>{if(data?.data){P=Object.assign({},P,data.data);localStorage.setItem("trip_ph",JSON.stringify(P));draw()}});
  sb.from("trip_state").select("data").eq("id",TRIP_ID).maybeSingle().then(({data})=>{if(data?.data){S=norm(data.data);localStorage.setItem("trip",JSON.stringify(S));syncMsg="ซิงก์กับ Supabase แล้ว";draw()}})}
@@ -227,7 +230,7 @@ function money(){const t=T(),L=allX(),G={};L.forEach(e=>(G[e.g]=G[e.g]||[]).push
 
 // ===== หน้าจอ =====
 function lib(){return `<div class="hero">${sk(60,"right:-10px;bottom:-12px;opacity:.5")}<span class="vt">旅の本</span><h1>สมุดทริปของเรา 🌸</h1><p>เลือกทริป หรือเพิ่มทริปใหม่</p></div><div style="height:12px"></div>
- ${S.trips.map(t=>`<button class="card trip" data-a="open" data-x="${t.id}"><h2>🌸 ${esc(t.name)||"ทริปไม่มีชื่อ"}</h2><div>📍 ${esc(t.dest)}</div><div class="sub">${fd(t.start)} – ${fd(t.end)} · ไป ${t.people.length} คน${t.people.length?": "+esc(t.people.join(", ")):""}</div></button>`).join("")}
+ ${S.trips.map(t=>`<button class="card trip" data-a="open" data-x="${t.id}"><h2>🌸 ${esc(t.name)||"ทริปไม่มีชื่อ"}</h2><div>📍 ${esc(t.dest)}</div><div class="sub">${fd(t.start,1)} – ${fd(t.end,1)} · ไป ${t.people.length} คน${t.people.length?": "+esc(t.people.join(", ")):""}</div></button>`).join("")}
  <button class="tile" style="width:100%" data-a="v" data-x="new"><span class="i">＋</span>เพิ่มทริปใหม่</button>`}
 function newf(){return `<button class="back" data-a="v" data-x="lib">‹ สมุดทริป</button><div class="card"><h2>🌸 เพิ่มทริปใหม่</h2>${[["name","ชื่อทริป","เช่น ทริปโอซาก้า"],["dest","ไปที่ไหน","เช่น โอซาก้า, ญี่ปุ่น"],["start","วันไป","date"],["end","วันกลับ","date"],["people","ใครไปบ้าง (คั่นด้วย ,)","ตั้ม, แอน"]].map(([k,l,p])=>`<label class="fl"><span>${l}</span><input id="n-${k}" type="${p=="date"?"date":"text"}" placeholder="${p=="date"?"":p}"></label>`).join("")}<button class="btn" data-a="mk">สร้างทริป</button></div>`}
 function home(){const t=T(),d=Math.ceil((new Date(t.start+"T00:00+09:00")-new Date())/864e5),ended=new Date(t.end+"T23:59")<new Date(),
@@ -235,7 +238,7 @@ function home(){const t=T(),d=Math.ceil((new Date(t.start+"T00:00+09:00")-new Da
  fc=allX().filter(e=>e.auto&&e.g!="โรงแรม").reduce((a,e)=>a+toThb(e),0),hc=allX().filter(e=>e.g=="โรงแรม").reduce((a,e)=>a+toThb(e),0);
  const cv=(P[PK("cover")]||[])[0],hero=hdr?`<div class="card"><h2>✎ แก้ไขข้อมูลทริป</h2>${F("name","ชื่อทริป")}${F("dest","ไปที่ไหน")}${two(F("start","วันไป","","date"),F("end","วันกลับ","","date"))}${F("people","ใครไปบ้าง (คั่นด้วย ,)","ตั้ม, แอน")}<label class="x" style="display:inline-block;margin:6px 6px 10px 0">📷 รูปปกทริป<input type="file" accept="image/*" hidden data-ph="cover"></label>${cv?`<button class="x" data-a="pdel" data-x="cover" data-y="0">ลบรูปปก</button><br>`:""}<button class="btn" data-a="hdr">✓ เสร็จ</button></div>`:
  `<div class="hero" ${cv?`style="background:linear-gradient(rgba(255,170,200,.2),rgba(232,98,154,.6)),url(${cv.s}) center/cover"`:""}><button class="back" style="color:#fff;padding:0 0 6px" data-a="v" data-x="lib">‹ สมุดทริป</button>${sk(60,"right:-10px;bottom:-12px;opacity:.5")}<span class="vt">大阪の旅</span><button class="x" data-a="hdr" style="position:absolute;right:14px;bottom:12px">✎ แก้ไข</button>
- <h1>${esc(t.name)||"ทริปใหม่"}</h1><p>📍 ${esc(t.dest)} · ${fd(t.start)} – ${fd(t.end)}</p><p>👭 ไป ${t.people.length} คน: ${esc(t.people.join(", "))}</p>
+ <h1>${esc(t.name)||"ทริปใหม่"}</h1><p>📍 ${esc(t.dest)} · ${fd(t.start,1)} – ${fd(t.end,1)}</p><p>👭 ไป ${t.people.length} คน: ${esc(t.people.join(", "))}</p>
  <div class="cd">${isNaN(d)?"ตั้งวันเดินทางด้วยปุ่มแก้ไข":ended?"ทริปจบแล้ว ♡":d>0?`อีก <b>${d}</b> วันเดินทาง`:"กำลังเที่ยวอยู่! ✈"}</div></div>`;
  const bags=(f.bags||[]).filter(b=>N(b.kg)).map(b=>`${b.who||"?"} ${b.dir||""} ${b.kg} กก.`).join(", ");
  return hero+`<div class="card"><h2>🌡 อุณหภูมิเฉลี่ยทั้งทริป</h2>${tp.length?`<div style="font-family:'Zen Maru Gothic';font-size:30px;font-weight:700;color:var(--dp)">${((hi+lo)/2).toFixed(1)}°C</div><div class="sub">สูงเฉลี่ย ${hi.toFixed(1)}° · ต่ำเฉลี่ย ${lo.toFixed(1)}° (จาก ${tp.length} วัน)</div><div class="chips">${t.days.map((x,i)=>`<span class="chip">D${i+1} ${x.hi===""?"–":x.hi+"°"}/${x.lo===""?"–":x.lo+"°"}</span>`).join("")}</div>`:'<div class="sub">กรอกองศาของแต่ละวันในหน้า “แพลน” แล้วจะคำนวณให้</div>'}</div>
@@ -258,10 +261,19 @@ function plan(){const t=T(),D=t.days;if(!D.length)return `<div class="card"><h2>
 const STK="🌸 🎀 🐰 🍓 🍒 ⭐ 💖 ☁️ 🍡 🧸 ✨ 🌷 🍰 🐻 🎌 🍥 🦋 🍭 💗 🍙 🌈 ❄️ 🎄 🫧".split(" "),FR=["#ffffff","#ffd3e3","#cdebd8","#e3d4fb","#fff3b0","#cfe8ff","#f7a8c4"];
 let ed=null,sel=-1,drag=null;
 const sks=(p,mv)=>(p.st||[]).map((s,n)=>`<span class="sk2 ${mv?"mv":""} ${mv&&n==sel?"sel":""}" ${mv?`data-sk="${n}"`:""} style="left:${s.x}%;top:${s.y}%;font-size:${22*s.z}px">${s.e}</span>`).join("");
-function album(){const t=T(),pre=t.id+"|",ks=Object.keys(P).filter(k=>k.startsWith(pre)&&k!=pre+"cover"),
- all=ks.flatMap(k=>P[k].map((p,i)=>({k:k.slice(pre.length),p,i})));
- return `<div class="card"><h2>📷 อัลบั้มความทรงจำ</h2><div class="sub">รวมรูปทั้งทริป แตะรูปเพื่อขยาย กด ✎ ตกแต่งเพื่อใส่สติกเกอร์ เปลี่ยนสีกรอบ และเขียนบรรยายภาพ</div><label class="btn" style="display:inline-block;margin-top:10px">＋ เพิ่มรูป<input type="file" accept="image/*" multiple hidden data-ph="album"></label></div>
- <div class="grid3">${all.map(o=>`<div class="pol" style="background:${o.p.f||"#fff"}"><div class="pw"><img src="${o.p.s}" alt="" data-a="lb" data-x="${esc(o.k)}" data-y="${o.i}">${sks(o.p)}</div><button class="x pd" data-a="pdel" data-x="${esc(o.k)}" data-y="${o.i}">×</button>${o.p.c?`<div class="cap">${esc(o.p.c)}</div>`:""}${o.p.d?`<div class="dsc">${esc(o.p.d)}</div>`:""}<button class="x" style="margin-top:6px" data-a="pedit" data-x="${esc(o.k)}" data-y="${o.i}">✎ ตกแต่ง</button></div>`).join("")||'<div class="card sub" style="grid-column:1/-1">ยังไม่มีรูป กด “เพิ่มรูป” ได้เลย</div>'}</div>`}
+let albTab="own";const ALB=[["own","📷","ของเรา"],["plan","🚆","หลังไป"],["food","🍡","กิน"],["shop","🛍","ช้อป"]];
+function albItems(tab=albTab){const t=T(),pre=t.id+"|",r=[];
+ if(tab=="plan"){t.days.forEach((d,n)=>d.items.forEach(s=>(P[pre+"st-"+s.id+"-real"]||[]).forEach((p,i)=>r.push({k:"st-"+s.id+"-real",p,i,g:`Day${n+1} · ${s.p}`}))));return r}
+ const ok=k=>tab=="own"?k=="album":k.startsWith(tab=="food"?"ph:f:":"ph:s:");
+ Object.keys(P).filter(k=>k.startsWith(pre)&&ok(k.slice(pre.length))).forEach(k=>(P[k]||[]).forEach((p,i)=>r.push({k:k.slice(pre.length),p,i,g:tab=="own"?"":k.slice(pre.length).replace(/^ph:[fs]:/,"")})));return r}
+function lbOpen(x,y){if(view=="album"){const L=albItems(),n=L.findIndex(o=>o.k==x&&o.i==y);lbL=L.map(o=>o.p.s);lbN=Math.max(0,n)}else{lbL=(P[PK(x)]||[]).map(p=>p.s);lbN=y}}
+function album(){const L=albItems(),G=[];L.forEach(o=>{let g=G.find(z=>z[0]==o.g);if(!g)G.push(g=[o.g,[]]);g[1].push(o)});
+ const tile=o=>`<div class="pol" style="background:${o.p.f||"#fff"}"><div class="pw"><img src="${o.p.s}" alt="" data-a="lb" data-x="${esc(o.k)}" data-y="${o.i}">${sks(o.p)}</div><button class="x pd" data-a="pdel" data-x="${esc(o.k)}" data-y="${o.i}">×</button>${o.p.c?`<div class="cap">${esc(o.p.c)}</div>`:""}${o.p.d?`<div class="dsc">${esc(o.p.d)}</div>`:""}<button class="x" style="margin-top:6px" data-a="pedit" data-x="${esc(o.k)}" data-y="${o.i}">✎ ตกแต่ง</button></div>`,
+ hint={own:"",plan:"รูปจริงที่ถ่ายมา เพิ่มได้ที่หน้าแพลน โหมด 📸 หลังไป",food:"เพิ่มรูปได้ที่หน้า “กิน” ด้วยปุ่ม ＋ ข้างรายการ",shop:"เพิ่มรูปได้ที่หน้า “ช้อป” ด้วยปุ่ม ＋ ข้างรายการ"}[albTab];
+ return `<div class="card"><h2>📷 อัลบั้มความทรงจำ</h2><div class="sub">แยกหมวดให้หาง่าย (รูปอ้างอิงไม่รวมในอัลบั้ม) แตะรูปเพื่อขยายและปัดดูรูปถัดไป กด ✎ ตกแต่งเพื่อใส่สติกเกอร์และบรรยายภาพ</div></div>
+ <div class="tabs">${ALB.map(a=>`<button data-a="atab" data-x="${a[0]}" class="${a[0]==albTab?"on":""}">${a[1]} ${a[2]} (${albItems(a[0]).length})</button>`).join("")}</div>
+ ${albTab=="own"?`<label class="btn" style="display:inline-block;margin-bottom:12px">＋ เพิ่มรูปเข้าอัลบั้ม<input type="file" accept="image/*" multiple hidden data-ph="album"></label>`:`<div class="sub" style="margin-bottom:10px">${hint}</div>`}
+ ${G.map(g=>`${g[0]?`<div class="gh">${esc(g[0])}</div>`:""}<div class="grid3">${g[1].map(tile).join("")}</div>`).join("")||'<div class="card sub">ยังไม่มีรูปในหมวดนี้</div>'}`}
 function edModal(){const p=(P[PK(ed[0])]||[])[ed[1]];if(!p)return"";const kk=esc(ed[0]+"|"+ed[1]);
  return `<div class="edm"><div class="card" style="max-width:440px;margin:0 auto"><h2>✎ ตกแต่งรูป</h2>
  <div class="pol" style="background:${p.f||"#fff"};transform:none;max-width:320px;margin:0 auto"><div class="pw" id="pw"><img src="${p.s}" alt="">${sks(p,1)}</div><div class="cap">${esc(p.c)}</div></div>
@@ -296,7 +308,7 @@ const htot=()=>{const e=$("#htot");if(e)e.textContent=`รวม ¥${fmt(hotelYe
 function draw(){const m={lib,new:newf,home,plan,flight,hotel,pack:()=>lists("pack","p:"),shop:()=>lists("shop","s:"),food:()=>lists("food","f:"),album,money};
  $("#nav").style.display=view=="lib"||view=="new"?"none":"flex";
  $("#nav").innerHTML=NAV.map(n=>`<button data-a="v" data-x="${n[0]}" class="${n[0]==view?"on":""}"><i>${n[1]}</i>${n[2]}</button>`).join("");
- $("#app").innerHTML=m[view]()+'<div style="height:100px"></div>'+(lb?`<div class="lbx" data-a="lbx"><img src="${lb}" alt=""></div>`:"")+(ed?edModal():"");htot()}
+ $("#app").innerHTML=m[view]()+'<div style="height:100px"></div>'+(lbL.length?`<div class="lbx" data-a="lbx"><img src="${lbL[lbN]}" alt=""><div class="lbc">${lbN+1} / ${lbL.length}</div>${lbL.length>1?'<button class="lbn l" data-a="lbp">‹</button><button class="lbn r" data-a="lbnx">›</button>':""}</div>`:"")+(ed?edModal():"");htot()}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const{a,x,y,z}=b.dataset,t=S.cur?T():null,pv=()=>b.previousElementSibling.value.trim();let top=0;
  if(a=="open"){S.cur=x;view="home";di=0;edit=0;hdr=0;top=1}
  else if(a=="v"){view=x;top=1}
@@ -309,8 +321,11 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b
  else if(a=="stdel"){const p=P[PK(ed[0])][ed[1]];if(sel>=0&&p.st?.[sel]){p.st.splice(sel,1);sel=-1;savePh()}}
  else if(a=="stclr"){P[PK(ed[0])][ed[1]].st=[];sel=-1;savePh()}
  else if(a=="mode")t.mode=x;
- else if(a=="lb")lb=P[PK(x)][+y].s;
- else if(a=="lbx")lb="";
+ else if(a=="lb")lbOpen(x,+y);
+ else if(a=="lbx")lbL=[];
+ else if(a=="lbp")lbN=(lbN-1+lbL.length)%lbL.length;
+ else if(a=="lbnx")lbN=(lbN+1)%lbL.length;
+ else if(a=="atab")albTab=x;
  else if(a=="pdel"){P[PK(x)].splice(+y,1);savePh()}
  else if(a=="mk"){const g=k=>$("#n-"+k).value.trim(),n=mkTrip({name:g("name"),dest:g("dest"),start:g("start"),end:g("end"),people:ppl(g("people"))});S.trips.push(n);S.cur=n.id;view="home";top=1}
  else if(a=="deltrip"){if(!confirm("ลบทริปนี้ถาวร?"))return;Object.keys(P).filter(k=>k.startsWith(S.cur+"|")).forEach(k=>delete P[k]);savePh();S.trips=S.trips.filter(q=>q.id!=S.cur);S.cur=null;view="lib";top=1}
@@ -335,6 +350,9 @@ document.addEventListener("pointerdown",e=>{const el=e.target.closest?.("[data-s
 document.addEventListener("pointermove",e=>{if(!drag)return;if(Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy)>4)drag.mv=1;if(!drag.mv)return;const st=P[PK(ed[0])][ed[1]].st[drag.n],c=(v,a,b)=>Math.max(a,Math.min(b,v));st.x=c((e.clientX-drag.r.left)/drag.r.width*100,-12,112);st.y=c((e.clientY-drag.r.top)/drag.r.height*100,-12,112);drag.el.style.left=st.x+"%";drag.el.style.top=st.y+"%"});
 const dropSk=()=>{if(!drag)return;const d=drag;drag=null;if(d.mv)savePh();else sel=d.n;draw()};document.addEventListener("pointerup",dropSk);document.addEventListener("pointercancel",dropSk);
 document.addEventListener("focusout",e=>{const p=e.target.dataset?.b;if(!edit||view!="plan"||!p||!/^days\.\d+\.items\./.test(p))return;const i=+p.split(".")[1];setTimeout(()=>{const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;if(edit&&sortDay(T(),i)){save();draw()}},350)});
+let tx=0;document.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener("touchend",e=>{if(lbL.length<2)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){lbN=(lbN+(dx<0?1:-1)+lbL.length)%lbL.length;draw()}});
+document.addEventListener("keydown",e=>{if(!lbL.length)return;if(e.key=="Escape"){lbL=[];draw()}else if(e.key=="ArrowRight"||e.key=="ArrowLeft"){lbN=(lbN+(e.key=="ArrowRight"?1:-1)+lbL.length)%lbL.length;draw()}});
 for(let i=0;i<9;i++){const p=document.createElement("i");p.className="petal";p.style.cssText=`left:${i*11+Math.random()*8}%;animation-duration:${9+Math.random()*8}s;animation-delay:${-Math.random()*12}s`;document.body.appendChild(p)}
 draw();
 </script>
