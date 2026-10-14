@@ -86,6 +86,14 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--dp);outline-off
 .pol{position:relative;background:#fff;border-radius:10px;padding:8px 8px 6px;box-shadow:0 3px 0 var(--pk);transform:rotate(-1deg)}.pol:nth-child(even){transform:rotate(1deg)}.pol img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;display:block;cursor:zoom-in}
 .pol input{width:100%;border:0;border-bottom:1.5px dashed var(--ln);background:none;font:12.5px 'Mali';color:var(--ink);margin-top:6px;padding:2px;text-align:center}.pol .pd{position:absolute;top:12px;right:12px}
 .lbx{position:fixed;inset:0;background:rgba(60,20,40,.85);display:grid;place-items:center;z-index:20;padding:16px}.lbx img{max-width:100%;max-height:100%;border-radius:16px;border:4px solid #fff}
+.plus{flex:0 0 26px;height:26px;border-radius:50%;border:2px solid var(--pk);display:grid;place-items:center;font:700 16px/1 'Mali';color:var(--dp);cursor:pointer;background:#fff}
+.strip.mini{margin:2px 0 0 32px}.strip.mini .ph{flex:0 0 50px;height:50px;border-radius:10px}
+.sk2{position:absolute;transform:translate(-50%,-50%);line-height:1;pointer-events:none;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+.sk2.mv{pointer-events:auto;touch-action:none;cursor:grab}.sk2.sel{outline:2px dashed var(--dp);outline-offset:3px;border-radius:8px}
+.pw{position:relative}.pol .cap{font:600 13px 'Mali';text-align:center;margin-top:6px;word-break:break-word}.pol .dsc{font-size:12px;opacity:.85;margin-top:3px;white-space:pre-wrap;word-break:break-word}
+.edm{position:fixed;inset:0;background:rgba(60,20,40,.88);z-index:21;overflow:auto;padding:14px 12px calc(40px + env(safe-area-inset-bottom,0px))}
+.fcs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.fcol{width:32px;height:32px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--pk);cursor:pointer}.fcol.on{box-shadow:0 0 0 3px var(--dp)}
+.stb{width:42px;height:42px;font-size:24px;border:2px solid var(--ln);border-radius:12px;background:#fff;cursor:pointer}
 .sync{font-size:12px;text-align:center;opacity:.7;margin-top:10px}
 </style>
 </head>
@@ -186,7 +194,7 @@ let tm;function save(){localStorage.setItem("trip",JSON.stringify(S));if(!sb)ret
 function savePh(){try{localStorage.setItem("trip_ph",JSON.stringify(P))}catch(e){alert("พื้นที่เก็บรูปในเครื่องเต็ม ลองลบรูปบางรูปก่อนนะ")}
  if(!sb)return;clearTimeout(tpH);tpH=setTimeout(async()=>{const{error}=await sb.from("trip_state").upsert({id:TRIP_ID+"-ph",data:P,updated_at:new Date().toISOString()});syncMsg=error?"ซิงก์รูปไม่สำเร็จ (เก็บในเครื่องแล้ว)":"ซิงก์แล้ว ♡"},1500)}
 const shrink=f=>new Promise(r=>{const im=new Image,u=URL.createObjectURL(f);im.onload=()=>{const m=Math.min(1,720/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*m;c.height=im.height*m;c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL("image/jpeg",.68))};im.onerror=()=>r(null);im.src=u});
-const strip=k=>`<div class="strip">${(P[PK(k)]||[]).map((p,i)=>`<div class="ph"><img src="${p.s}" alt="" data-a="lb" data-x="${esc(k)}" data-y="${i}"><button class="x" data-a="pdel" data-x="${esc(k)}" data-y="${i}">×</button></div>`).join("")}<label class="ph add"><span>📷<br>เพิ่มรูป</span><input type="file" accept="image/*" multiple hidden data-ph="${esc(k)}"></label></div>`;
+const strip=(k,mini)=>mini&&!(P[PK(k)]||[]).length?"":`<div class="strip ${mini?"mini":""}">${(P[PK(k)]||[]).map((p,i)=>`<div class="ph"><img src="${p.s}" alt="" data-a="lb" data-x="${esc(k)}" data-y="${i}"><button class="x" data-a="pdel" data-x="${esc(k)}" data-y="${i}">×</button></div>`).join("")}${mini?"":`<label class="ph add"><span>📷<br>เพิ่มรูป</span><input type="file" accept="image/*" multiple hidden data-ph="${esc(k)}"></label>`}</div>`;
 // ===== ตัวช่วยสร้างฟอร์ม =====
 const sk=(sz,st="")=>`<svg class="sak" width="${sz}" height="${sz}" style="${st}"><use href="#sk"/></svg>`;
 const F=(p,l,ph="",ty="text")=>{let v=get(T(),p);if(Array.isArray(v))v=v.join(", ");return `<label class="fl"><span>${l}</span><input type="${ty}" ${ty=="number"?'inputmode="decimal" step="any"':""} data-b="${p}" value="${esc(v)}" placeholder="${ph}"></label>`},
@@ -236,22 +244,36 @@ function home(){const t=T(),d=Math.ceil((new Date(t.start+"T00:00+09:00")-new Da
  <div class="card"><h2>🐷 ใช้จ่ายไปแล้ว</h2><b style="font-size:22px;color:var(--dp)">฿${fmt(totalThb())}</b></div>
  <div class="sync">${syncMsg}</div><button class="x" data-a="deltrip" style="display:block;margin:10px auto">ลบทริปนี้</button>`}
 const mapUrl=s=>/^https?:\/\//i.test(s.m||"")?s.m:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(s.m||s.p||""),md=()=>T().mode=="real"?"real":"ref";
+const mins=s=>{const m=String(s.t||"").match(/(\d{1,2})\s*[:.]\s*(\d{2})/);return m?+m[1]*60+ +m[2]:1e5};
+function sortDay(t,i){const d=t.days[i],f=d.items.map((s,j)=>[s,!!t.c["st"+i+"-"+j]]),o=d.items.slice();f.sort((a,b)=>mins(a[0])-mins(b[0]));d.items=f.map(x=>x[0]);f.forEach((x,j)=>{if(x[1])t.c["st"+i+"-"+j]=true;else delete t.c["st"+i+"-"+j]});return o.some((s,j)=>s!==d.items[j])}
 function plan(){const t=T(),D=t.days;if(!D.length)return `<div class="card"><h2>ยังไม่มีวันเที่ยว</h2><button class="btn" data-a="addday">＋ เพิ่มวันเที่ยว</button></div>`;
- di=Math.min(di,D.length-1);const d=D[di],b0=`days.${di}`;let ch=0;d.items.forEach(s=>{if(!s.id){s.id=uid();ch=1}});if(ch)save();
+ di=Math.min(di,D.length-1);const d=D[di],b0=`days.${di}`;let ch=0;d.items.forEach(s=>{if(!s.id){s.id=uid();ch=1}});if(ch)save();if(!edit&&sortDay(t,di))save();
  return `<div class="tabs">${D.map((x,i)=>`<button data-a="day" data-x="${i}" class="${i==di?"on":""}">Day${i+1} · ${esc(x.date)}</button>`).join("")}<button data-a="addday">＋ วัน</button></div>
  <div class="card"><h2>❄ อุณหภูมิ & ชุด</h2>${two(F(b0+".hi","สูงสุด °C","6","number"),F(b0+".lo","ต่ำสุด °C","-2","number"))}${F(b0+".date","วันที่","22/12")}${TA(b0+".wear","ชุดวันนี้","พิมพ์ได้ยาวๆ เช่น โค้ท เสื้อ กระโปรง รองเท้า ถุงมือ")}</div>
  <div class="tabs" style="padding-bottom:8px"><button data-a="mode" data-x="ref" class="${md()=="ref"?"on":""}">🗺 ก่อนไป · รูปอ้างอิง</button><button data-a="mode" data-x="real" class="${md()=="real"?"on":""}">📸 หลังไป · รูปจริง</button></div>
  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap"><button class="btn" data-a="edit">${edit?"✓ เสร็จ":"✎ แก้ตารางเวลา"}</button><button class="btn" data-a="additem">＋ เพิ่มจุดหมาย</button>${edit?'<button class="x" data-a="delday">ลบวันนี้</button>':""}</div>
  <div class="tl">${d.items.map((s,j)=>{const k="st"+di+"-"+j,b=`${b0}.items.${j}`;return edit?`<div class="st">${two(F(b+".t","เวลา","09:00"),F(b+".p","ไปที่ไหน"))}${F(b+".n","โน้ต")}${F(b+".r","วิธีไป / สายรถไฟ")}${F(b+".m","📍 ลิงก์ Google Maps หรือชื่อสถานที่","วางลิงก์แผนที่ (ไม่ใส่ก็ค้นจากชื่อที่ไปให้)")}<button class="x" data-a="delitem" data-x="${j}">ลบจุดนี้ ×</button></div>`:
  `<div class="st ${t.c[k]?"done":""}"><label class="row" style="border:0;padding:0"><input type="checkbox" data-k="${k}" ${t.c[k]?"checked":""}><span><span class="tm">${esc(s.t)}</span><div class="pl">${esc(s.p)}</div>${s.n?`<div class="nt">${esc(s.n)}</div>`:""}</span></label>${s.r?`<div class="tr"><b>🚃 วิธีไป:</b> ${esc(s.r)}</div>`:""}${s.p||s.m?`<a class="mapb" href="${esc(mapUrl(s))}" target="_blank" rel="noopener">📍 เปิดแผนที่</a>`:""}<div class="sub" style="margin-top:6px">${md()=="ref"?"รูปอ้างอิง":"รูปจริงที่ถ่ายมา 📸"}</div>${strip("st-"+s.id+"-"+md())}</div>`}).join("")}</div>
- <div class="sub" style="text-align:center">ชื่อสายรถไฟเป็นแนวทาง เช็กเวลาจริงใน Google Maps / Navitime อีกที</div>`}
+ <div class="sub" style="text-align:center">เรียงตามเวลาให้อัตโนมัติเมื่อกด “✓ เสร็จ” (จุดที่ยังไม่ใส่เวลาจะอยู่ท้ายสุด)<br>ชื่อสายรถไฟเป็นแนวทาง เช็กเวลาจริงใน Google Maps / Navitime อีกที</div>`}
+const STK="🌸 🎀 🐰 🍓 🍒 ⭐ 💖 ☁️ 🍡 🧸 ✨ 🌷 🍰 🐻 🎌 🍥 🦋 🍭 💗 🍙 🌈 ❄️ 🎄 🫧".split(" "),FR=["#ffffff","#ffd3e3","#cdebd8","#e3d4fb","#fff3b0","#cfe8ff","#f7a8c4"];
+let ed=null,sel=-1,drag=null;
+const sks=(p,mv)=>(p.st||[]).map((s,n)=>`<span class="sk2 ${mv?"mv":""} ${mv&&n==sel?"sel":""}" ${mv?`data-sk="${n}"`:""} style="left:${s.x}%;top:${s.y}%;font-size:${22*s.z}px">${s.e}</span>`).join("");
 function album(){const t=T(),pre=t.id+"|",ks=Object.keys(P).filter(k=>k.startsWith(pre)&&k!=pre+"cover"),
- lbl=k=>{for(const d of t.days)for(const s of d.items)if(k.includes("st-"+s.id+"-"))return s.p;return k=="album"?"คำบรรยาย":k.replace(/^ph:[psf]:/,"")},
  all=ks.flatMap(k=>P[k].map((p,i)=>({k:k.slice(pre.length),p,i})));
- return `<div class="card"><h2>📷 อัลบั้มความทรงจำ</h2><div class="sub">รวมรูปทั้งทริป (รูปจากแพลน/กิน/ช้อปมาอยู่ที่นี่ด้วย) แตะรูปเพื่อขยาย พิมพ์คำบรรยายได้</div><label class="btn" style="display:inline-block;margin-top:10px">＋ เพิ่มรูป<input type="file" accept="image/*" multiple hidden data-ph="album"></label></div>
- <div class="grid3">${all.map(o=>`<div class="pol"><img src="${o.p.s}" alt="" data-a="lb" data-x="${esc(o.k)}" data-y="${o.i}"><button class="x pd" data-a="pdel" data-x="${esc(o.k)}" data-y="${o.i}">×</button><input type="text" data-cap="${esc(o.k)}|${o.i}" value="${esc(o.p.c)}" placeholder="${esc(lbl(o.k))}"></div>`).join("")||'<div class="card sub" style="grid-column:1/-1">ยังไม่มีรูป กด “เพิ่มรูป” ได้เลย</div>'}</div>`}
+ return `<div class="card"><h2>📷 อัลบั้มความทรงจำ</h2><div class="sub">รวมรูปทั้งทริป แตะรูปเพื่อขยาย กด ✎ ตกแต่งเพื่อใส่สติกเกอร์ เปลี่ยนสีกรอบ และเขียนบรรยายภาพ</div><label class="btn" style="display:inline-block;margin-top:10px">＋ เพิ่มรูป<input type="file" accept="image/*" multiple hidden data-ph="album"></label></div>
+ <div class="grid3">${all.map(o=>`<div class="pol" style="background:${o.p.f||"#fff"}"><div class="pw"><img src="${o.p.s}" alt="" data-a="lb" data-x="${esc(o.k)}" data-y="${o.i}">${sks(o.p)}</div><button class="x pd" data-a="pdel" data-x="${esc(o.k)}" data-y="${o.i}">×</button>${o.p.c?`<div class="cap">${esc(o.p.c)}</div>`:""}${o.p.d?`<div class="dsc">${esc(o.p.d)}</div>`:""}<button class="x" style="margin-top:6px" data-a="pedit" data-x="${esc(o.k)}" data-y="${o.i}">✎ ตกแต่ง</button></div>`).join("")||'<div class="card sub" style="grid-column:1/-1">ยังไม่มีรูป กด “เพิ่มรูป” ได้เลย</div>'}</div>`}
+function edModal(){const p=(P[PK(ed[0])]||[])[ed[1]];if(!p)return"";const kk=esc(ed[0]+"|"+ed[1]);
+ return `<div class="edm"><div class="card" style="max-width:440px;margin:0 auto"><h2>✎ ตกแต่งรูป</h2>
+ <div class="pol" style="background:${p.f||"#fff"};transform:none;max-width:320px;margin:0 auto"><div class="pw" id="pw"><img src="${p.s}" alt="">${sks(p,1)}</div><div class="cap">${esc(p.c)}</div></div>
+ <div class="sub" style="text-align:center;margin-top:6px">ลากสติกเกอร์เพื่อย้าย แตะเพื่อเลือก</div>
+ <b>สีกรอบ</b><div class="fcs">${FR.map(c=>`<button class="fcol ${(p.f||"#ffffff")==c?"on":""}" style="background:${c}" data-a="frame" data-x="${c}"></button>`).join("")}</div>
+ <b>สติกเกอร์ (แตะเพื่อเพิ่ม)</b><div class="fcs">${STK.map(e=>`<button class="stb" data-a="stadd" data-x="${e}">${e}</button>`).join("")}</div>
+ <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0"><button class="x" data-a="szup">ใหญ่ขึ้น ＋</button><button class="x" data-a="szdn">เล็กลง －</button><button class="x" data-a="stdel">ลบอันที่เลือก</button><button class="x" data-a="stclr">ล้างทั้งหมด</button></div>
+ <label class="fl"><span>คำบรรยายสั้น (ใต้รูป)</span><input type="text" data-cap="${kk}" value="${esc(p.c)}" placeholder="เช่น ข้าวหน้าปลาไหลอร่อยมาก"></label>
+ <label class="fl"><span>รายละเอียด / ความทรงจำ</span><textarea rows="4" data-desc="${kk}" placeholder="เล่าเรื่องในรูปนี้ได้ยาวๆ">${esc(p.d)}</textarea></label>
+ <button class="btn" data-a="pedone">✓ เสร็จ</button></div></div>`}
 function lists(kind,pre){const t=T(),L=t.lists[kind];let all=0,ok=0,h="";
- for(const g in L){h+=`<div class="card"><h2>${esc(g)}</h2>`;L[g].forEach((x,i)=>{all++;const k=pre+x;if(t.c[k])ok++;h+=`<div class="it"><div class="row"><input type="checkbox" data-k="${esc(k)}" ${t.c[k]?"checked":""}><span style="flex:1">${esc(x)}</span><button class="x" data-a="ldel" data-x="${kind}" data-y="${esc(g)}" data-z="${i}">×</button></div>${kind!="pack"?strip("ph:"+k):""}</div>`});
+ for(const g in L){h+=`<div class="card"><h2>${esc(g)}</h2>`;L[g].forEach((x,i)=>{all++;const k=pre+x;if(t.c[k])ok++;h+=`<div class="it"><div class="row"><input type="checkbox" data-k="${esc(k)}" ${t.c[k]?"checked":""}><span style="flex:1">${esc(x)}</span>${kind!="pack"?`<label class="plus" title="เพิ่มรูป">＋<input type="file" accept="image/*" multiple hidden data-ph="${esc("ph:"+k)}"></label>`:""}<button class="x" data-a="ldel" data-x="${kind}" data-y="${esc(g)}" data-z="${i}">×</button></div>${kind!="pack"?strip("ph:"+k,1):""}</div>`});
  h+=`<div class="add"><input type="text" placeholder="＋ เพิ่มรายการ"><button class="btn" data-a="ladd" data-x="${kind}" data-y="${esc(g)}">เพิ่ม</button></div></div>`}
  return `<div class="card"><b>ทำแล้ว ${ok}/${all}</b><div class="pg"><i style="width:${all?ok/all*100:0}%"></i></div></div>${h}<div class="card"><div class="add" style="margin:0"><input type="text" placeholder="＋ เพิ่มหมวดใหม่"><button class="btn" data-a="gadd" data-x="${kind}">เพิ่มหมวด</button></div></div>`}
 function flight(){const t=T(),f=(k,l,p,y)=>F("fl."+k,l,p,y);
@@ -274,22 +296,29 @@ const htot=()=>{const e=$("#htot");if(e)e.textContent=`รวม ¥${fmt(hotelYe
 function draw(){const m={lib,new:newf,home,plan,flight,hotel,pack:()=>lists("pack","p:"),shop:()=>lists("shop","s:"),food:()=>lists("food","f:"),album,money};
  $("#nav").style.display=view=="lib"||view=="new"?"none":"flex";
  $("#nav").innerHTML=NAV.map(n=>`<button data-a="v" data-x="${n[0]}" class="${n[0]==view?"on":""}"><i>${n[1]}</i>${n[2]}</button>`).join("");
- $("#app").innerHTML=m[view]()+'<div style="height:100px"></div>'+(lb?`<div class="lbx" data-a="lbx"><img src="${lb}" alt=""></div>`:"");htot()}
+ $("#app").innerHTML=m[view]()+'<div style="height:100px"></div>'+(lb?`<div class="lbx" data-a="lbx"><img src="${lb}" alt=""></div>`:"")+(ed?edModal():"");htot()}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const{a,x,y,z}=b.dataset,t=S.cur?T():null,pv=()=>b.previousElementSibling.value.trim();let top=0;
  if(a=="open"){S.cur=x;view="home";di=0;edit=0;hdr=0;top=1}
  else if(a=="v"){view=x;top=1}
  else if(a=="hdr")hdr=!hdr;
+ else if(a=="pedit"){ed=[x,+y];sel=-1}
+ else if(a=="pedone"){ed=null;sel=-1}
+ else if(a=="frame"){P[PK(ed[0])][ed[1]].f=x;savePh()}
+ else if(a=="stadd"){const p=P[PK(ed[0])][ed[1]];(p.st=p.st||[]).push({e:x,x:25+Math.random()*50,y:20+Math.random()*50,z:1.4});sel=p.st.length-1;savePh()}
+ else if(a=="szup"||a=="szdn"){const p=P[PK(ed[0])][ed[1]];if(sel>=0&&p.st?.[sel]){p.st[sel].z=Math.max(.7,Math.min(4,p.st[sel].z+(a=="szup"?.3:-.3)));savePh()}}
+ else if(a=="stdel"){const p=P[PK(ed[0])][ed[1]];if(sel>=0&&p.st?.[sel]){p.st.splice(sel,1);sel=-1;savePh()}}
+ else if(a=="stclr"){P[PK(ed[0])][ed[1]].st=[];sel=-1;savePh()}
  else if(a=="mode")t.mode=x;
  else if(a=="lb")lb=P[PK(x)][+y].s;
  else if(a=="lbx")lb="";
  else if(a=="pdel"){P[PK(x)].splice(+y,1);savePh()}
  else if(a=="mk"){const g=k=>$("#n-"+k).value.trim(),n=mkTrip({name:g("name"),dest:g("dest"),start:g("start"),end:g("end"),people:ppl(g("people"))});S.trips.push(n);S.cur=n.id;view="home";top=1}
  else if(a=="deltrip"){if(!confirm("ลบทริปนี้ถาวร?"))return;Object.keys(P).filter(k=>k.startsWith(S.cur+"|")).forEach(k=>delete P[k]);savePh();S.trips=S.trips.filter(q=>q.id!=S.cur);S.cur=null;view="lib";top=1}
- else if(a=="day")di=+x;
+ else if(a=="day"){sortDay(t,di);di=+x}
  else if(a=="addday"){const d=new Date(t.start+"T00:00");d.setDate(d.getDate()+t.days.length);t.days.push({date:isNaN(d)?"":d.getDate()+"/"+(d.getMonth()+1),hi:"",lo:"",wear:"",items:[]});di=t.days.length-1;edit=1}
  else if(a=="delday"){if(!confirm("ลบวันนี้?"))return;t.days.splice(di,1);di=Math.max(0,di-1)}
  else if(a=="edit")edit=!edit;
- else if(a=="additem"){t.days[di].items.push({id:uid(),t:"",p:"",n:"",r:"",m:""});edit=1}
+ else if(a=="additem"){sortDay(t,di);t.days[di].items.push({id:uid(),t:"",p:"",n:"",r:"",m:""});edit=1}
  else if(a=="delitem")t.days[di].items.splice(+x,1);
  else if(a=="bagadd")t.fl.bags.push({who:"",dir:"",kg:"",price:"",pay:""});
  else if(a=="bagdel")t.fl.bags.splice(+x,1);
@@ -299,9 +328,13 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b
  else if(a=="xa"){const n=$("#xn").value.trim(),v=+$("#xy").value;if(!n||!v){alert("ใส่ชื่อรายการและจำนวนเงินก่อนนะ");return}t.x.push({n,y:v,pl:$("#xp").value.trim(),c:$("#xc").value,g:$("#xg").value,pay:$("#xpay").value,at:$("#xat").value||nowL()})}
  else if(a=="xdel")t.x.splice(+x,1);
  save();draw();if(top)scrollTo(0,0)});
-document.addEventListener("input",e=>{const cp_=e.target.dataset?.cap;if(cp_){const n=cp_.lastIndexOf("|");P[PK(cp_.slice(0,n))][+cp_.slice(n+1)].c=e.target.value;savePh();return}const p=e.target.dataset?.b;if(!p)return;const v=e.target.type=="checkbox"?e.target.checked:e.target.value;
+document.addEventListener("input",e=>{const ds=e.target.dataset?.desc;if(ds){const n=ds.lastIndexOf("|");P[PK(ds.slice(0,n))][+ds.slice(n+1)].d=e.target.value;savePh();return}const cp_=e.target.dataset?.cap;if(cp_){const n=cp_.lastIndexOf("|");P[PK(cp_.slice(0,n))][+cp_.slice(n+1)].c=e.target.value;savePh();return}const p=e.target.dataset?.b;if(!p)return;const v=e.target.type=="checkbox"?e.target.checked:e.target.value;
  set(T(),p,p=="people"?ppl(v):p=="rate"?N(v)||.23:v);save();htot()});
 document.addEventListener("change",async e=>{const pk=e.target.dataset?.ph;if(pk){for(const f of[...e.target.files]){const sh=await shrink(f);if(sh){const key=PK(pk);if(pk=="cover")P[key]=[{s:sh,c:""}];else(P[key]=P[key]||[]).push({s:sh,c:""})}}e.target.value="";savePh();draw();return}const k=e.target.dataset?.k;if(k){T().c[k]=e.target.checked;save();draw()}});
+document.addEventListener("pointerdown",e=>{const el=e.target.closest?.("[data-sk]");if(!el||!ed)return;e.preventDefault();drag={el,n:+el.dataset.sk,r:$("#pw").getBoundingClientRect(),sx:e.clientX,sy:e.clientY,mv:0}});
+document.addEventListener("pointermove",e=>{if(!drag)return;if(Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy)>4)drag.mv=1;if(!drag.mv)return;const st=P[PK(ed[0])][ed[1]].st[drag.n],c=(v,a,b)=>Math.max(a,Math.min(b,v));st.x=c((e.clientX-drag.r.left)/drag.r.width*100,-12,112);st.y=c((e.clientY-drag.r.top)/drag.r.height*100,-12,112);drag.el.style.left=st.x+"%";drag.el.style.top=st.y+"%"});
+const dropSk=()=>{if(!drag)return;const d=drag;drag=null;if(d.mv)savePh();else sel=d.n;draw()};document.addEventListener("pointerup",dropSk);document.addEventListener("pointercancel",dropSk);
+document.addEventListener("focusout",e=>{const p=e.target.dataset?.b;if(!edit||view!="plan"||!p||!/^days\.\d+\.items\./.test(p))return;const i=+p.split(".")[1];setTimeout(()=>{const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;if(edit&&sortDay(T(),i)){save();draw()}},350)});
 for(let i=0;i<9;i++){const p=document.createElement("i");p.className="petal";p.style.cssText=`left:${i*11+Math.random()*8}%;animation-duration:${9+Math.random()*8}s;animation-delay:${-Math.random()*12}s`;document.body.appendChild(p)}
 draw();
 </script>
